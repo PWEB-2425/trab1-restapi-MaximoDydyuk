@@ -124,3 +124,16 @@ tr:hover {
 .btn-cancelar:hover {
     background-color: #7f8c8d;
 }
+
+#idContainer {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border-left: 4px solid #3498db;
+}
+
+#idInput {
+    background-color: #fff;
+    border: 1px solid #ced4da;
+}
