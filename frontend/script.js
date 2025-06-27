@@ -6,14 +6,20 @@ const API_CURSOS = 'http://localhost:3001/cursos';
 const alunoForm = document.getElementById('alunoForm');
 const tabelaAlunos = document.getElementById('tabelaAlunos').querySelector('tbody');
 const selectCurso = document.getElementById('curso');
+const btnSalvar = document.getElementById('btnSalvar');
+const btnCancelar = document.getElementById('btnCancelar');
 
-// Estado global
-let modoEdicao = false;
-
-// 1. Carregar dados iniciais
+// Carregar dados iniciais
 document.addEventListener('DOMContentLoaded', async () => {
     await carregarCursos();
     await carregarAlunos();
+    
+    btnCancelar.addEventListener('click', () => {
+        alunoForm.reset();
+        document.getElementById('alunoId').value = '';
+        btnCancelar.style.display = 'none';
+        btnSalvar.textContent = 'Salvar Aluno';
+    });
 });
 
 // Carregar cursos para o dropdown
@@ -21,6 +27,8 @@ async function carregarCursos() {
     try {
         const response = await fetch(API_CURSOS);
         const cursos = await response.json();
+        
+        selectCurso.innerHTML = '<option value="">Selecione um curso</option>';
         
         cursos.forEach(curso => {
             const option = document.createElement('option');
@@ -39,45 +47,47 @@ async function carregarAlunos() {
     try {
         const response = await fetch(API_ALUNOS);
         const alunos = await response.json();
-        
         tabelaAlunos.innerHTML = '';
         
-        alunos.forEach(aluno => {
-            const tr = document.createElement('tr');
-            
-            // Buscar nome do curso
-            const curso = document.querySelector(`#curso option[value="${aluno.curso}"]`);
-            const nomeCurso = curso ? curso.textContent : 'Curso não encontrado';
-            
-            tr.innerHTML = `
-                <td>${aluno.id}</td>
-                <td>${aluno.nome}</td>
-                <td>${aluno.apelido}</td>
-                <td>${nomeCurso}</td>
-                <td>${aluno.anoCurricular}</td>
-                <td>${aluno.idade}</td>
-                <td>
-                    <button class="btn-editar" onclick="editarAluno(${aluno.id})">Editar</button>
-                    <button class="btn-excluir" onclick="excluirAluno(${aluno.id})">Excluir</button>
-                </td>
-            `;
-            
-            tabelaAlunos.appendChild(tr);
-        });
+        alunos.forEach(aluno => adicionarAlunoNaTabela(aluno));
     } catch (error) {
         console.error('Erro ao carregar alunos:', error);
         alert('Não foi possível carregar os alunos');
     }
 }
 
-// 2. Manipular envio do formulário
+// Adicionar aluno na tabela
+function adicionarAlunoNaTabela(aluno) {
+    const tr = document.createElement('tr');
+    tr.id = `aluno-${aluno.id}`;
+    
+    const cursoOption = document.querySelector(`#curso option[value="${aluno.curso}"]`);
+    const nomeCurso = cursoOption ? cursoOption.textContent : 'Curso não encontrado';
+    
+    tr.innerHTML = `
+        <td>${aluno.id}</td>
+        <td>${aluno.nome}</td>
+        <td>${aluno.apelido}</td>
+        <td>${nomeCurso}</td>
+        <td>${aluno.anoCurricular}</td>
+        <td>${aluno.idade}</td>
+        <td class="action-buttons">
+            <button class="btn-editar" onclick="editarAluno('${aluno.id}')">Editar</button>
+            <button class="btn-excluir" onclick="excluirAluno('${aluno.id}')">Excluir</button>
+        </td>
+    `;
+    
+    tabelaAlunos.appendChild(tr);
+}
+
+// Manipular envio do formulário
 alunoForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const aluno = {
         nome: document.getElementById('nome').value,
         apelido: document.getElementById('apelido').value,
-        curso: parseInt(document.getElementById('curso').value),
+        curso: parseInt(selectCurso.value),
         anoCurricular: parseInt(document.getElementById('anoCurricular').value),
         idade: parseInt(document.getElementById('idade').value)
     };
@@ -88,71 +98,75 @@ alunoForm.addEventListener('submit', async (e) => {
     
     try {
         const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            method,
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(aluno)
         });
         
-        if (!response.ok) {
-            throw new Error('Falha na operação');
-        }
+        if (!response.ok) throw new Error('Operação falhou');
         
-        // Resetar formulário e recarregar dados
+        const alunoSalvo = await response.json();
+        
+        if (alunoId) document.getElementById(`aluno-${alunoId}`).remove();
+        adicionarAlunoNaTabela(alunoSalvo);
+        
         alunoForm.reset();
         document.getElementById('alunoId').value = '';
-        await carregarAlunos();
+        btnCancelar.style.display = 'none';
+        btnSalvar.textContent = 'Salvar Aluno';
         
-        alert(alunoId ? 'Aluno atualizado com sucesso!' : 'Aluno criado com sucesso!');
-        
+        alert(alunoId ? 'Aluno atualizado!' : 'Aluno criado!');
     } catch (error) {
         console.error('Erro ao salvar aluno:', error);
-        alert('Erro ao salvar aluno. Veja o console para detalhes.');
+        alert(`Erro: ${error.message}`);
     }
 });
 
-// 3. Editar aluno
-async function editarAluno(id) {
+// Editar aluno
+window.editarAluno = async function(id) {
     try {
         const response = await fetch(`${API_ALUNOS}/${id}`);
+        if (!response.ok) throw new Error('Aluno não encontrado');
+        
         const aluno = await response.json();
         
-        // Preencher formulário
         document.getElementById('alunoId').value = aluno.id;
         document.getElementById('nome').value = aluno.nome;
         document.getElementById('apelido').value = aluno.apelido;
-        document.getElementById('curso').value = aluno.curso;
+        selectCurso.value = aluno.curso;
         document.getElementById('anoCurricular').value = aluno.anoCurricular;
         document.getElementById('idade').value = aluno.idade;
         
-        // Scroll para o formulário
-        document.getElementById('alunoForm').scrollIntoView();
-        
+        btnSalvar.textContent = 'Atualizar Aluno';
+        btnCancelar.style.display = 'inline-block';
     } catch (error) {
-        console.error('Erro ao carregar aluno para edição:', error);
-        alert('Erro ao carregar dados do aluno');
+        console.error('Erro ao carregar aluno:', error);
+        alert(`Erro: ${error.message}`);
     }
 }
 
-// 4. Excluir aluno
-async function excluirAluno(id) {
-    if (!confirm('Tem certeza que deseja excluir este aluno?')) return;
+// Excluir aluno
+window.excluirAluno = async function(id) {
+    if (!confirm('Tem certeza que deseja excluir?')) return;
     
     try {
         const response = await fetch(`${API_ALUNOS}/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {'Content-Type': 'application/json'}
         });
         
-        if (!response.ok) {
-            throw new Error('Falha ao excluir aluno');
+        if (!response.ok) throw new Error('Falha na exclusão');
+        
+        document.getElementById(`aluno-${id}`).remove();
+        if (document.getElementById('alunoId').value === id) {
+            alunoForm.reset();
+            btnCancelar.style.display = 'none';
+            btnSalvar.textContent = 'Salvar Aluno';
         }
         
-        await carregarAlunos();
-        alert('Aluno excluído com sucesso!');
-        
+        alert('Aluno excluído!');
     } catch (error) {
         console.error('Erro ao excluir aluno:', error);
-        alert('Erro ao excluir aluno. Veja o console para detalhes.');
+        alert(`Erro: ${error.message}`);
     }
-}// JS para operações CRUD com Fetch API
+}
