@@ -8,6 +8,8 @@ const tabelaAlunos = document.getElementById('tabelaAlunos').querySelector('tbod
 const selectCurso = document.getElementById('curso');
 const btnSalvar = document.getElementById('btnSalvar');
 const btnCancelar = document.getElementById('btnCancelar');
+const idInput = document.getElementById('idInput');
+const idContainer = document.getElementById('idContainer');
 
 // Carregar dados iniciais
 document.addEventListener('DOMContentLoaded', async () => {
@@ -17,8 +19,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnCancelar.addEventListener('click', () => {
         alunoForm.reset();
         document.getElementById('alunoId').value = '';
+        idInput.value = '';
         btnCancelar.style.display = 'none';
         btnSalvar.textContent = 'Salvar Aluno';
+        idContainer.style.display = 'block';
     });
 });
 
@@ -93,6 +97,13 @@ alunoForm.addEventListener('submit', async (e) => {
     };
     
     const alunoId = document.getElementById('alunoId').value;
+    const idFornecido = idInput.value.trim();
+    
+    // Se estiver criando um novo aluno e foi fornecido um ID, use-o
+    if (!alunoId && idFornecido) {
+        aluno.id = idFornecido;
+    }
+    
     const url = alunoId ? `${API_ALUNOS}/${alunoId}` : API_ALUNOS;
     const method = alunoId ? 'PUT' : 'POST';
     
@@ -103,22 +114,39 @@ alunoForm.addEventListener('submit', async (e) => {
             body: JSON.stringify(aluno)
         });
         
-        if (!response.ok) throw new Error('Operação falhou');
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Erro ${response.status}: ${errorText}`);
+        }
         
         const alunoSalvo = await response.json();
         
-        if (alunoId) document.getElementById(`aluno-${alunoId}`).remove();
+        // Se estivermos atualizando, remova a linha antiga
+        if (alunoId) {
+            document.getElementById(`aluno-${alunoId}`).remove();
+        }
+        
+        // Adicione o novo aluno (ou o aluno atualizado) na tabela
         adicionarAlunoNaTabela(alunoSalvo);
         
+        // Resetar formulário
         alunoForm.reset();
         document.getElementById('alunoId').value = '';
+        idInput.value = '';
         btnCancelar.style.display = 'none';
         btnSalvar.textContent = 'Salvar Aluno';
+        idContainer.style.display = 'block';
         
-        alert(alunoId ? 'Aluno atualizado!' : 'Aluno criado!');
+        alert(alunoId ? 'Aluno atualizado com sucesso!' : 'Aluno criado com sucesso!');
     } catch (error) {
         console.error('Erro ao salvar aluno:', error);
-        alert(`Erro: ${error.message}`);
+        
+        // Tratamento especial para erro de ID duplicado
+        if (error.message.includes('id already exists')) {
+            alert('Erro: O ID que você inseriu já está em uso. Por favor, escolha outro ID.');
+        } else {
+            alert(`Erro: ${error.message}`);
+        }
     }
 });
 
@@ -130,6 +158,7 @@ window.editarAluno = async function(id) {
         
         const aluno = await response.json();
         
+        // Preencher formulário
         document.getElementById('alunoId').value = aluno.id;
         document.getElementById('nome').value = aluno.nome;
         document.getElementById('apelido').value = aluno.apelido;
@@ -137,17 +166,25 @@ window.editarAluno = async function(id) {
         document.getElementById('anoCurricular').value = aluno.anoCurricular;
         document.getElementById('idade').value = aluno.idade;
         
+        // Ocultar campo de ID durante a edição
+        idContainer.style.display = 'none';
+        
+        // Atualizar UI
         btnSalvar.textContent = 'Atualizar Aluno';
         btnCancelar.style.display = 'inline-block';
+        
+        // Scroll para o formulário
+        alunoForm.scrollIntoView({ behavior: 'smooth' });
+        
     } catch (error) {
-        console.error('Erro ao carregar aluno:', error);
+        console.error('Erro ao carregar aluno para edição:', error);
         alert(`Erro: ${error.message}`);
     }
 }
 
 // Excluir aluno
 window.excluirAluno = async function(id) {
-    if (!confirm('Tem certeza que deseja excluir?')) return;
+    if (!confirm('Tem certeza que deseja excluir este aluno permanentemente?')) return;
     
     try {
         const response = await fetch(`${API_ALUNOS}/${id}`, {
@@ -155,16 +192,27 @@ window.excluirAluno = async function(id) {
             headers: {'Content-Type': 'application/json'}
         });
         
-        if (!response.ok) throw new Error('Falha na exclusão');
-        
-        document.getElementById(`aluno-${id}`).remove();
-        if (document.getElementById('alunoId').value === id) {
-            alunoForm.reset();
-            btnCancelar.style.display = 'none';
-            btnSalvar.textContent = 'Salvar Aluno';
+        if (!response.ok) {
+            throw new Error('Falha ao excluir aluno');
         }
         
-        alert('Aluno excluído!');
+        // Remover da tabela
+        const alunoRow = document.getElementById(`aluno-${id}`);
+        if (alunoRow) {
+            alunoRow.remove();
+        }
+        
+        // Se estava editando este aluno, limpar formulário
+        if (document.getElementById('alunoId').value === id) {
+            alunoForm.reset();
+            document.getElementById('alunoId').value = '';
+            btnCancelar.style.display = 'none';
+            btnSalvar.textContent = 'Salvar Aluno';
+            idContainer.style.display = 'block';
+        }
+        
+        alert('Aluno excluído com sucesso!');
+        
     } catch (error) {
         console.error('Erro ao excluir aluno:', error);
         alert(`Erro: ${error.message}`);
