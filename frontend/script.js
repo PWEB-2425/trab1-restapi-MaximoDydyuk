@@ -10,11 +10,19 @@ const btnSalvar = document.getElementById('btnSalvar');
 const btnCancelar = document.getElementById('btnCancelar');
 const idInput = document.getElementById('idInput');
 const idContainer = document.getElementById('idContainer');
+const idError = document.getElementById('idError');
+
+// Cache de IDs existentes
+let existingIds = new Set();
 
 // Carregar dados iniciais
 document.addEventListener('DOMContentLoaded', async () => {
     await carregarCursos();
     await carregarAlunos();
+    
+    // Preencher cache de IDs
+    const alunos = await fetch(API_ALUNOS).then(res => res.json());
+    alunos.forEach(aluno => existingIds.add(aluno.id));
     
     btnCancelar.addEventListener('click', () => {
         alunoForm.reset();
@@ -23,8 +31,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         btnCancelar.style.display = 'none';
         btnSalvar.textContent = 'Salvar Aluno';
         idContainer.style.display = 'block';
+        resetarErroID();
     });
+    
+    // Verificar ID em tempo real
+    idInput.addEventListener('input', verificarIdDuplicado);
 });
+
+// Função para verificar ID duplicado
+function verificarIdDuplicado() {
+    const id = idInput.value.trim();
+    resetarErroID();
+    
+    if (id && existingIds.has(id)) {
+        mostrarErroID('Este ID já está em uso!');
+        return true;
+    }
+    return false;
+}
+
+function mostrarErroID(mensagem) {
+    idError.textContent = mensagem;
+    idError.style.display = 'block';
+    idInput.classList.add('input-error');
+}
+
+function resetarErroID() {
+    idError.textContent = '';
+    idError.style.display = 'none';
+    idInput.classList.remove('input-error');
+}
 
 // Carregar cursos para o dropdown
 async function carregarCursos() {
@@ -88,6 +124,11 @@ function adicionarAlunoNaTabela(aluno) {
 alunoForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    // Verificar ID duplicado antes de enviar
+    if (verificarIdDuplicado()) {
+        return;
+    }
+    
     const aluno = {
         nome: document.getElementById('nome').value,
         apelido: document.getElementById('apelido').value,
@@ -121,6 +162,11 @@ alunoForm.addEventListener('submit', async (e) => {
         
         const alunoSalvo = await response.json();
         
+        // Atualizar cache de IDs
+        if (!alunoId && idFornecido) {
+            existingIds.add(idFornecido);
+        }
+        
         // Se estivermos atualizando, remova a linha antiga
         if (alunoId) {
             document.getElementById(`aluno-${alunoId}`).remove();
@@ -136,6 +182,7 @@ alunoForm.addEventListener('submit', async (e) => {
         btnCancelar.style.display = 'none';
         btnSalvar.textContent = 'Salvar Aluno';
         idContainer.style.display = 'block';
+        resetarErroID();
         
         alert(alunoId ? 'Aluno atualizado com sucesso!' : 'Aluno criado com sucesso!');
     } catch (error) {
@@ -143,7 +190,7 @@ alunoForm.addEventListener('submit', async (e) => {
         
         // Tratamento especial para erro de ID duplicado
         if (error.message.includes('id already exists')) {
-            alert('Erro: O ID que você inseriu já está em uso. Por favor, escolha outro ID.');
+            mostrarErroID('Este ID já está em uso!');
         } else {
             alert(`Erro: ${error.message}`);
         }
@@ -202,6 +249,9 @@ window.excluirAluno = async function(id) {
             alunoRow.remove();
         }
         
+        // Remover do cache de IDs
+        existingIds.delete(id);
+        
         // Se estava editando este aluno, limpar formulário
         if (document.getElementById('alunoId').value === id) {
             alunoForm.reset();
@@ -209,6 +259,7 @@ window.excluirAluno = async function(id) {
             btnCancelar.style.display = 'none';
             btnSalvar.textContent = 'Salvar Aluno';
             idContainer.style.display = 'block';
+            resetarErroID();
         }
         
         alert('Aluno excluído com sucesso!');
