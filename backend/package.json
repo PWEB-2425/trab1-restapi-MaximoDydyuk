@@ -1,8 +1,8 @@
 {
-  "name": "backend",
+  "name": "trabalho-pweb-api",
   "type": "module",
   "scripts": {
-    "start": "node backend/server.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
