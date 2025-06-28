@@ -1,7 +1,7 @@
 // URLs da API
 const API_ALUNOS = 'http://localhost:3001/alunos';
 const API_CURSOS = 'http://localhost:3001/cursos';
-const API_URL = "https://trabalho-pweb-api.onrender.com/api";
+const API_URL = process.env.REACT_APP_API_URL || "https://trabalho-pweb-api.onrender.com/api";
 
 // Elementos DOM
 const alunoForm = document.getElementById('alunoForm');
