@@ -3,6 +3,12 @@ import Aluno from './models/Aluno.js';
 import Curso from './models/Curso.js';
 import config from './config/config.js';
 import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Obter caminho do diretório atual
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Conectar ao MongoDB
 mongoose.connect(config.MONGODB_URI)
@@ -15,7 +21,14 @@ mongoose.connect(config.MONGODB_URI)
 async function migrate() {
   try {
     // Carregar dados do arquivo JSON
-    const data = JSON.parse(fs.readFileSync('../mock-data/bd.json'));
+    const filePath = path.join(__dirname, '../mock-data/bd.json');
+    const rawData = fs.readFileSync(filePath);
+    const data = JSON.parse(rawData);
+    
+    // Verificar se os dados foram carregados corretamente
+    if (!data.cursos || !data.alunos) {
+      throw new Error('Estrutura inválida do arquivo JSON. Deve conter "cursos" e "alunos"');
+    }
 
     // Limpar coleções
     await Promise.all([
@@ -30,13 +43,20 @@ async function migrate() {
     );
     console.log(` ${cursos.length} cursos inseridos`);
 
-    // Inserir alunos
+    // Criar mapa de IDs para nomes de curso
+    const cursoMap = {};
+    data.cursos.forEach(curso => {
+      cursoMap[curso.id] = curso.nomeDoCurso;
+    });
+
+    // Inserir alunos com nomes de curso
     const alunos = await Aluno.insertMany(
       data.alunos.map(a => ({
         nome: a.nome,
         apelido: a.apelido,
-        curso: a.curso,
-        anocurricular: a.anoCurricular 
+        curso: cursoMap[a.curso] || `Curso ${a.curso}`, // Usar nome do curso
+        anocurricular: a.anoCurricular,
+        idade: a.idade
       }))
     );
     console.log(` ${alunos.length} alunos inseridos`);
@@ -44,6 +64,7 @@ async function migrate() {
     console.log(' Migração concluída!');
   } catch (error) {
     console.error(' Erro na migração:', error.message);
+    console.error(error.stack); // Mostrar stack trace completo
   } finally {
     mongoose.disconnect();
   }

@@ -1,21 +1,42 @@
+// backend/controllers/alunoController.js
 import Aluno from '../models/Aluno.js';
-import mongoose from 'mongoose';
 
-// Obter todos alunos
+// Obter todos alunos com paginação
 export const getAlunos = async (req, res) => {
   try {
-    const alunos = await Aluno.find();
-    res.status(200).json(alunos);
+    // Paginação
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Filtros
+    const filters = {};
+    if (req.query.nome) filters.nome = new RegExp(req.query.nome, 'i');
+    if (req.query.curso) filters.curso = req.query.curso;
+    if (req.query.anocurricular) filters.anocurricular = req.query.anocurricular;
+
+    const [alunos, total] = await Promise.all([
+      Aluno.find(filters).skip(skip).limit(limit),
+      Aluno.countDocuments(filters)
+    ]);
+
+    res.status(200).json({
+      data: alunos,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+// Obter aluno por ID
 export const getAlunoById = async (req, res) => {
   try {
-    // Converter string para ObjectId
-    const id = new mongoose.Types.ObjectId(req.params.id);
-    const aluno = await Aluno.findById(id);
+    const aluno = await Aluno.findById(req.params.id);
     
     if (!aluno) {
       return res.status(404).json({ message: 'Aluno não encontrado' });
@@ -30,9 +51,28 @@ export const getAlunoById = async (req, res) => {
 // Criar novo aluno
 export const createAluno = async (req, res) => {
   try {
-    const newAluno = await Aluno.create(req.body);
+    const { nome, apelido, curso, anocurricular, idade } = req.body;
+
+    // Validação
+    if (!nome || !apelido || !curso || !anocurricular || !idade) {
+      return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+    }
+
+    // Criar aluno
+    const newAluno = await Aluno.create({
+      nome,
+      apelido,
+      curso,
+      anocurricular,
+      idade
+    });
+
     res.status(201).json(newAluno);
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ error: errors.join(', ') });
+    }
     res.status(400).json({ error: error.message });
   }
 };
@@ -40,15 +80,29 @@ export const createAluno = async (req, res) => {
 // Atualizar aluno
 export const updateAluno = async (req, res) => {
   try {
-    const id = new mongoose.Types.ObjectId(req.params.id);
-    const updatedAluno = await Aluno.findByIdAndUpdate(id, req.body, { new: true });
-    
+    const { nome, apelido, curso, anocurricular, idade } = req.body;
+
+    // Validação
+    if (!nome || !apelido || !curso || !anocurricular || !idade) {
+      return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+    }
+
+    const updatedAluno = await Aluno.findByIdAndUpdate(
+      req.params.id,
+      { nome, apelido, curso, anocurricular, idade },
+      { new: true, runValidators: true }
+    );
+
     if (!updatedAluno) {
       return res.status(404).json({ message: 'Aluno não encontrado' });
     }
-    
+
     res.status(200).json(updatedAluno);
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ error: errors.join(', ') });
+    }
     res.status(400).json({ error: error.message });
   }
 };
@@ -56,8 +110,7 @@ export const updateAluno = async (req, res) => {
 // Excluir aluno
 export const deleteAluno = async (req, res) => {
   try {
-    const id = new mongoose.Types.ObjectId(req.params.id);
-    const deletedAluno = await Aluno.findByIdAndDelete(id);
+    const deletedAluno = await Aluno.findByIdAndDelete(req.params.id);
     
     if (!deletedAluno) {
       return res.status(404).json({ message: 'Aluno não encontrado' });
