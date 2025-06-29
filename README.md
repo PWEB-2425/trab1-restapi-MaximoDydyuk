@@ -8,6 +8,10 @@ Frontend: https://trab1maximodydyuk.vercel.app/
 
 Backend: https://trab1maximodydyuk.onrender.com
 
+Na backend para ver alunos vemos: https://trab1maximodydyuk.onrender.com/api/alunos
+
+Na backend para ver cursos vemos: https://trab1maximodydyuk.onrender.com/api/cursos
+
 Como Instalar e Executar
 
 Backend
