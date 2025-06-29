@@ -1,27 +1,168 @@
 {
 	"info": {
-		"_postman_id": "94e5168c-bdf4-4c00-b873-26a1a9368165",
-		"name": "postman_collection",
+		"_postman_id": "b846270a-dc57-4468-aaa8-a70cd2e46327",
+		"name": "TP1_API_Alunos",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "414713"
+		"_exporter_id": "46262212",
+		"_collection_link": "https://maximo-3870119.postman.co/workspace/Maximo's-Workspace~4686772a-d713-405b-85b8-ef9ff9209e43/collection/46262212-b846270a-dc57-4468-aaa8-a70cd2e46327?action=share&source=collection_link&creator=46262212"
 	},
 	"item": [
 		{
-			"name": "obter alunos",
+			"name": "Mostrar Alunos",
 			"request": {
-				"auth": {
-					"type": "noauth"
-				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:3000/alunos",
+					"raw": "http://localhost:3001/alunos",
+					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "3001",
 					"path": [
 						"alunos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mostrar Aluno Especifico",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/alunos/7",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"alunos",
+						"7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Criar aluno",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": \"18\",\r\n  \"nome\": \"Teste\",\r\n  \"apelido\": \"Postman\",\r\n  \"curso\": 3,\r\n  \"anoCurricular\": 2,\r\n  \"idade\": 21\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/alunos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"alunos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar Aluno",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "  {\r\n    \"id\": \"9\",\r\n    \"nome\": \"Teste att\",\r\n    \"apelido\": \"Postman\",\r\n    \"curso\": 3,\r\n    \"anoCurricular\": 2,\r\n    \"idade\": 21\r\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/alunos/9",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"alunos",
+						"9"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Apagar Aluno",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/alunos/18",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"alunos",
+						"18"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mostrar Cursos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/cursos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"cursos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Mostrar Curso Especifico",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/cursos/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"cursos",
+						"2"
 					]
 				}
 			},
