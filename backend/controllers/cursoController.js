@@ -37,22 +37,6 @@ export const createCurso = async (req, res) => {
   }
 };
 
-// Obter curso por ID
-export const getCursoById = async (req, res) => {
-  try {
-    const id = new mongoose.Types.ObjectId(req.params.id);
-    const curso = await Curso.findById(id);
-    
-    if (!curso) {
-      return res.status(404).json({ message: 'Curso não encontrado' });
-    }
-    
-    res.status(200).json(curso);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
 // Atualizar curso
 export const updateCurso = async (req, res) => {
   try {
