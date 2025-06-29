@@ -6,8 +6,6 @@ import alunoRoutes from './routes/alunoRoutes.js';
 import cursoRoutes from './routes/cursoRoutes.js';
 import { validateObjectId } from './middleware/validateObjectId.js';
 
-import swaggerUi from 'swagger-ui-express';
-import swaggerSpec from './docs/swagger.js';
 
 const app = express();
 
@@ -15,8 +13,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-//swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Conectar ao banco de dados
 connectDB();
