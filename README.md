@@ -4,7 +4,7 @@ Autor: Maximo Dydyuk, nº 31818
 
 Onde Está Publicado:
 
-Frontend: https://trab1maximodydyuk.vercel.app/?
+Frontend: https://trab1maximodydyuk.vercel.app/
 
 Backend: https://trab1maximodydyuk.onrender.com
 
