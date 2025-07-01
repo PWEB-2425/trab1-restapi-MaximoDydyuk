@@ -1,0 +1,12 @@
+{
+  "name": "mock-server",
+  "version": "1.0.0",
+  "description": "Mock server para a API de alunos",
+  "scripts": {
+    "start": "json-server --watch ../mock-data/bd.json --port 3001 --no-cache",
+    "start:readonly": "json-server ../mock-data/bd.json --port 3001 --read-only"
+  },
+  "dependencies": {
+    "json-server": "^0.17.4"
+  }
+}

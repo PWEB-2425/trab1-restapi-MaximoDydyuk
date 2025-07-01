@@ -1,153 +1,80 @@
-# Trabalho Prático #1
+Nome e Número do Autor:
 
-## Consumo e Implementação de APIs RESTful
+Autor: Maximo Dydyuk, nº 31818
 
-### Objetivo Geral
+Onde Está Publicado:
 
-Consolidar os conhecimentos em desenvolvimento web com foco na criação, consumo e implementação de APIs RESTful utilizando tecnologias do ecossistema JavaScript:
+Frontend: https://trab1-maximodydyuk-higz.vercel.app/
 
-- Node.js + Express
-- MongoDB / MongoDB Atlas
-- JSON-Server
-- Fetch API
-- Swagger (opcional)
+Backend: https://trab1maximodydyuk.onrender.com
 
-O projeto simula o ciclo completo de desenvolvimento de uma aplicação web com front-end e back-end separados, incluindo testes e deploy.
+Na backend para ver alunos vemos: https://trab1maximodydyuk.onrender.com/api/alunos
 
----
+Na backend para ver cursos vemos: https://trab1maximodydyuk.onrender.com/api/cursos
 
-## Partes do Trabalho
+Como Instalar e Executar
 
-### Parte 1: Estruturação da Base de Dados (JSON)
+Backend
 
-- Criar um ficheiro `bd.json` com:
+Clonar o repositório:
 
-  - Lista de alunos: `nome`, `apelido`, `curso`, `anoCurricular`
-  - Lista de cursos: `nomeDoCurso`
+git clone https://github.com/PWEB-2425/trab1-restapi-MaximoDydyuk.git
 
-- 📁 Diretório sugerido: `/mock-data/`
-- 📄 Entregável: `bd.json`
+Instalar dependências:
 
----
+cd trab1-restapi-MaximoDydyuk/backend
 
-### Parte 2: API Simulada com JSON-Server + Testes
+npm install
 
-- Configurar e iniciar `json-server` com `bd.json`
-- Testar os endpoints com Postman (CRUD de alunos, leitura de cursos)
-- Exportar a coleção de testes
+Executar o servidor:
 
-- 📁 Diretório sugerido: `/mock-server/`
-- 📄 Entregáveis:
-  - Código de configuração (`package.json`, script json-server)
-  - Coleção `.json` do Postman em `/tests/`
+node server.js
 
----
+Frontend
 
-### Parte 3: Interface Web (CRUD de Alunos)
+Clonar o repositório:
 
-- Desenvolver uma página web funcional para gerir alunos:
-  - Ver alunos
-  - Adicionar aluno
-  - Editar aluno
-  - Apagar aluno
-- Utilizar `Fetch API` e programação assíncrona
 
-- 📁 Diretório sugerido: `/frontend/`
-- 📄 Entregável: Página funcional conectada à API simulada
+git clone https://github.com/PWEB-2425/trab1-restapi-MaximoDydyuk.git
 
----
+Instalar dependências:
 
-### Parte 4: API RESTful real (Node.js + Express + MongoDB Atlas)
 
-- Migrar os dados para o MongoDB Atlas
-- Implementar a API Express com endpoints equivalentes ao JSON-server
-- Manter a estrutura RESTful
-- Sugestão : usar mongoose a abordagem MVC (bónus 5%)
+cd trab1-restapi-MaximoDydyuk/frontend
 
-- 📁 Diretório sugerido: `/backend/`
-- 📄 Entregável: Código funcional da API com instruções
+npm install
 
----
+Executar o servidor:
 
-### Parte 5: Deploy da Aplicação
 
-- Fazer deploy do front-end no [Vercel](https://vercel.com)
-- (Opcional) Fazer deploy da API no [Render](https://render.com)
-- Adaptar o front-end para consumir a nova API
+node server.js (na backend)
 
-📄 Incluir no `README.md`:
+ Descrição da Base de Dados
+ 
+O projeto utiliza uma base de dados em formato JSON para simular o armazenamento de dados. Esta abordagem é comum em ambientes de desenvolvimento e testes, 
 
-- URL pública do front-end
-- URL da API real
-- 📄 Entregável: Links funcionais no repositório
+permitindo uma configuração rápida e sem a necessidade de um servidor de banco de dados real. Também, posteriormente usamos o MOngodb. 
 
----
+Descrição da API (Rotas)
 
-### Parte 6 (Bonificação): Documentação da API
+A API RESTful implementada no backend oferece as seguintes rotas principais:
 
-- Utilizar Swagger para documentar os endpoints da API
-- Incluir rota `/api-docs` na aplicação
+GET /api/items: Obtém todos os itens.
 
-- 📁 Diretório sugerido: `/backend/docs/`
-- 📄 Entregável: Swagger funcional e acessível
+GET /api/items/:id: Obtém um item específico pelo ID.
 
----
+POST /api/items: Cria um novo item.
 
-## Organização do Projeto
+PUT /api/items/:id: Atualiza um item existente pelo ID.
 
-```text
-projeto-raiz/
-│
-├── /frontend/ ← Interface web (HTML/CSS/JS)
-├── /backend/ ← API RESTful com Node.js + MongoDB
-├── /mock-server/ ← JSON-server configurado
-├── /mock-data/ ← Base de dados JSON original
-├── /tests/ ← Coleção de testes Postman
-├── README.md ← Instruções, links e notas
-└── .gitignore, etc.
-```
+DELETE /api/items/:id: Remove um item pelo ID.
 
----
 
-## Sugestão de Branches
+Estas rotas permitem operações CRUD (Criar, Ler, Atualizar, Deletar) sobre os itens na base de dados.
 
-| Branch     | Descrição                        |
-| ---------- | -------------------------------- |
-| `main`     | Versão estável e final           |
-| `dev`      | Desenvolvimento geral            |
-| `frontend` | Interface e interação do usuário |
-| `api`      | API real (Node + MongoDB)        |
-| `deploy`   | Adaptações para Vercel/Render    |
+ Descrição do Frontend
+ 
+O frontend foi desenvolvido utilizando HTML, CSS e JavaScript. Ele consome a API RESTful para exibir e manipular os dados dos itens. A interface é responsiva e 
 
----
+permite ao utilizador interagir com os dados de forma intuitiva.
 
-## Critérios de Avaliação
-
-| Critério                         | Peso |
-| -------------------------------- | ---- |
-| Base de dados JSON correta       | 10%  |
-| API simulada e testada (Postman) | 10%  |
-| Funcionalidade do front-end      | 30%  |
-| Qualidade da API real (Node.js)  | 30%  |
-| Integração front-end/backend     | 10%  |
-| Deploy funcional                 | 10%  |
-| Bonificação (MVC)                | +5%  |
-| Bonificação (Swagger)            | +5%  |
-
----
-
-## Entrega
-
-- Entrega via **GitHub Classroom**.
-- O repositório deve conter:
-  - Código funcional
-  - README.md com instruções claras
-  - Links de deploy (front e opcionalmente back)
-
----
-
-### Repositório Base
-
-Usa o repositório template inicial fornecido no GitHub Classroom.
-# TWT1RESTAPI
-# TRAB1_TEMPLATE
